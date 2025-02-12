@@ -3,8 +3,6 @@ import 'dotenv/config';
 import books_endpoints from '../src/endpoints/books.js';
 
 
-
-
 const PORT = process.env.PORT || 8000;
 const server = http.createServer((req, res) => {
 
@@ -16,6 +14,8 @@ const server = http.createServer((req, res) => {
              
 
 });
+
+console.log(import.meta.url)
 
 server.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

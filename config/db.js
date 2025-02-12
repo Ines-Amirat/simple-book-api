@@ -1,4 +1,8 @@
-import mysql from 'mysql'
+import mysql from 'mysql';
+
+
+console.log(import.meta.url)
+
 
 const connexion = mysql.createConnection({
       host: 'localhost',
