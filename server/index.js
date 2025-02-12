@@ -1,7 +1,8 @@
-import http from 'http';
+import http, { request } from 'http';
 import 'dotenv/config';
+import books_endpoints from '../src/endpoints/books.js';
 
-import  connexion  from "../config/db.js";
+
 
 
 const PORT = process.env.PORT || 8000;
@@ -9,21 +10,10 @@ const server = http.createServer((req, res) => {
 
 
       if (req.url == '/api/books' && req.method == 'GET') {
-
-            connexion.query("select * from books ", function (err, result, fields) {
-                  if (err) {
-                        console.log("error");
-                  } else {
-                        console.log(result);
-                        res.setHeader('Content-type', 'application/json');
-                        res.write(JSON.stringify(result));
-                        res.end();
-                  }
-            });
-
+              books_endpoints(req,res);
       }
-
-
+      
+             
 
 });
 
