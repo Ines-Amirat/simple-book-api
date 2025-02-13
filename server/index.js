@@ -27,14 +27,15 @@ const server = http.createServer((req, res) => {
                                     console.log(result);
                                     res.statusCode = 200;
                                     res.write(JSON.stringify(result));
-                                    res.end();
+
                               }
                               else {
                                     console.log(result);
                                     res.statusCode = 200;
                                     res.write(JSON.stringify({ message: "no books available " }));
-                                    res.end();
+
                               }
+                              res.end();
                         }
 
                   });
@@ -73,6 +74,26 @@ const server = http.createServer((req, res) => {
 
                         }
                   });
+            }
+            // Route : Supprimer un livre par l'Admin
+            else if (req.url.startsWith('/api/books') && req.method == 'DELETE') {
+                  const id = req.url.split('/')[3];
+                  const query = `delete from books where book_id = ?`;
+                  connexion.query(query, [id] , function (err, result, fields) {
+                        res.setHeader('Content-type', 'application/json');
+                        if (err) {
+                              res.statusCode = 500;
+                              res.write(JSON.stringify({ message: "Server Error" }));
+                             
+                        } else {
+                              res.statusCode = 201;
+                              res.write(JSON.stringify({ message: "Book deleted successfully " }));
+
+                        }
+                        res.end();
+
+                  });
+
             }
       }
 
