@@ -1,6 +1,7 @@
 import http, { request } from 'http';
 import 'dotenv/config';
 import connexion from '../config/db.js';
+import { type } from 'os';
 
 
 const PORT = process.env.PORT || 8000;
@@ -16,6 +17,7 @@ const server = http.createServer((req, res) => {
       else {
             // Route : Liste des livres
             if (req.url == '/api/books' && req.method == 'GET') {
+                  console.log(typeof req.url)
                   connexion.query("select * from books ", function (err, result, fields) {
                         if (err) {
                               console.log("error");
@@ -78,13 +80,14 @@ const server = http.createServer((req, res) => {
             // Route : Supprimer un livre par l'Admin
             else if (req.url.startsWith('/api/books') && req.method == 'DELETE') {
                   const id = req.url.split('/')[3];
+                  console.log(typeof id);
                   const query = `delete from books where book_id = ?`;
-                  connexion.query(query, [id] , function (err, result, fields) {
+                  connexion.query(query, [id], function (err, result, fields) {
                         res.setHeader('Content-type', 'application/json');
                         if (err) {
                               res.statusCode = 500;
                               res.write(JSON.stringify({ message: "Server Error" }));
-                             
+
                         } else {
                               res.statusCode = 201;
                               res.write(JSON.stringify({ message: "Book deleted successfully " }));
@@ -95,6 +98,79 @@ const server = http.createServer((req, res) => {
                   });
 
             }
+            // Route : Modifier un livre par l'Admin
+            else if (req.url.startsWith('/api/books') && req.method == 'PUT') {
+                  let body = "";
+                  req.on('data', (chunk) => {
+                        body += chunk.toString();
+                  })
+                  req.on('end', () => {
+                        try {
+                              const id = req.url.split('/')[3];
+                              const updateBook = JSON.parse(body);
+                              const query = "update books set  title = ? ,  author = ? , genre =? , published_year =? , state =? where book_id = ? ";
+                              const newValues = [ updateBook.title, updateBook.author, updateBook.genre, updateBook.published_year, updateBook.state  ,id];
+                              connexion.query(query, newValues, (err) => {
+                                    res.setHeader('Content-type', 'application/json');
+                                    if (err) {
+                                          console.log(err)
+                                          res.statusCode = 500;
+                                          res.write(JSON.stringify({ message: "Error " }));
+                                    }
+                                    else {
+                                          res.statusCode = 201;
+                                          res.write(JSON.stringify({ message: "Book updated successfully " }));
+
+                                    }
+                                    res.end();
+                              });
+                        }
+                        catch (error) {
+                              res.setHeader('Content-type', 'application/json');
+                              res.statusCode = 400;
+                              res.write(JSON.stringify({ message: "Invalid JSON format " }));
+                              res.end();
+
+                        }
+                  });
+            }
+
+            // Route : Ajouter un livre par l'Admin
+            else if (req.url == '/api/books' && req.method == 'POST') {
+                  let body = "";
+                  req.on('data', (chunk) => {
+                        body += chunk.toString();
+                  })
+                  req.on('end', () => {
+                        try {
+                              const newbook = JSON.parse(body);
+                              const query = "INSERT INTO books (book_id, title,  author, genre, published_year, state) values (?, ?, ?, ?, ?, ?)";
+                              const values = [newbook.book_id, newbook.title, newbook.author, newbook.genre, newbook.published_year, newbook.state];
+                              connexion.query(query, values, (err) => {
+
+                                    res.setHeader('Content-type', 'application/json');
+                                    if (err) {
+                                          res.statusCode = 500;
+                                          res.write(JSON.stringify({ message: "Error " }));
+                                    }
+                                    else {
+                                          res.statusCode = 201;
+                                          res.write(JSON.stringify({ message: "Book added successfully " }));
+
+                                    }
+                                    res.end();
+                              });
+                        }
+                        catch (error) {
+                              res.setHeader('Content-type', 'application/json');
+                              res.statusCode = 400;
+                              res.write(JSON.stringify({ message: "Invalid JSON format " }));
+                              res.end();
+
+                        }
+                  });
+            }
+
       }
 
 
